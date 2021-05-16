@@ -24,10 +24,15 @@ io.on('connection', (socket) => {
     });
 
     socket.on('order_send', (orders) => {
-		axios.post('http://192.168.1.11:8000/api/customer/order', orders).then((response) => {
+		axios.post('http://192.168.1.12:8000/api/customer/order', orders).then((response) => {
+            console.log(response.data);
             if(response.status === 200) {
                 console.log(`New order with code ${response.data[0].order_code}`);
+
+                // notify the android app
                 io.emit(`order_success_${response.data[0].customer_id}`, { order_code : response.data[0].order_code});
+                
+                // notify the web app
                 io.emit('customer_send_order', response.data[0].order_code);
             }
         }).catch(err => console.log(err));
@@ -35,9 +40,19 @@ io.on('connection', (socket) => {
 	
 	
 	socket.on('order_prepared', (orders) => {
-		orders.message = `Your order with code ${orders.order_code} is now being prepared.`;
-		io.emit(`customer_order_prepared_${orders.customer_id}`, orders);
-		
+		orders.message = `Your order with code ${orders.order_code} is now preparing.`;
+        // notify the android app
+		io.emit(`customer_notify_${orders.customer_id}`, orders);
+    });
+
+    socket.on('order_ready', (orders) => {
+        if(orders.order_type.toUpperCase() === 'DELIVER') {
+            orders.message = `Your order with code ${orders.order_code} is now on the way to ${orders.order_type} for you.`;
+        } else {
+            orders.message = `Your order with code ${orders.order_code} is now ready to ${orders.order_type}`;
+        }
+        // notify the android app
+		io.emit(`customer_notify_${orders.customer_id}`, orders);
     });
 	
 
