@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gateway Web App Sample</title>
+</head>
+
+<body>
+
+    <input type="text" id="message">
+    <button id="btn__submit">Submit message</button>
+    <script src="https://cdn.socket.io/3.1.1/socket.io.min.js"
+        integrity="sha384-gDaozqUvc4HTgo8iZjwth73C6dDDeOJsAgpxBcMpZYztUfjHXpzrpdrHRdVp8ySO" crossorigin="anonymous">
+    </script>
+    <script>
+        const socket = io("http://192.168.1.14:3030");
+        document.querySelector('#btn__submit').addEventListener('click', (e) => {
+            socket.emit("message_send", document.querySelector('#message').value);
+        });
+    </script>
+</body>
+
+</html>
